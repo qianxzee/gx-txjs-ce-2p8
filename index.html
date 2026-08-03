@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>安全员证书查询</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: "Microsoft YaHei", "微软雅黑", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+    background-color: #f0f2f5;
+    color: #303133;
+    min-height: 100vh;
+  }
+
+  /* ========== 顶部标题区域 ========== */
+  .header {
+    background-color: #2898E8;
+    padding: 28px 0 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* 斜向光效层 - 模拟原图的蓝色条纹光 */
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -20%;
+    right: 10%;
+    height: 200%;
+    background: linear-gradient(
+      115deg,
+      transparent 0%,
+      rgba(255,255,255,0.03) 20%,
+      rgba(255,255,255,0.08) 40%,
+      rgba(255,255,255,0.12) 50%,
+      rgba(255,255,255,0.08) 60%,
+      rgba(255,255,255,0.03) 80%,
+      transparent 100%
+    );
+    transform: rotate(-5deg);
+    pointer-events: none;
+  }
+
+  /* 顶部亮光 */
+  .header::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 100%);
+    pointer-events: none;
+  }
+
+  .header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .logo {
+    width: 92px;
+    height: 92px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    mix-blend-mode: multiply;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.15));
+  }
+
+  .header-text {
+    color: #fff;
+  }
+
+  .header-title-top {
+    font-size: 17px;
+    font-weight: 400;
+    letter-spacing: 5px;
+    margin-bottom: 6px;
+    opacity: 0.95;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  }
+
+  .header-title-main {
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: 8px;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+
+  /* ========== 主体内容 ========== */
+  .main-container {
+    max-width: 1200px;
+    margin: 24px auto;
+    padding: 0 40px;
+  }
+
+  /* 卡片容器 */
+  .section {
+    background: #fff;
+    border-radius: 2px;
+    border: 1px solid #ebeef5;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+
+  /* 卡片标题 */
+  .section-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid #ebeef5;
+    display: flex;
+    align-items: center;
+    background: #fafcff;
+  }
+
+  .section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a5fa8;
+    padding-left: 12px;
+    border-left: 3px solid #1a5fa8;
+    line-height: 1;
+  }
+
+  /* ========== 查询结果表格 ========== */
+  .result-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .result-table td {
+    padding: 14px 24px;
+    font-size: 14px;
+    color: #303133;
+    border-bottom: 1px solid #ebeef5;
+    border-right: 1px solid #ebeef5;
+  }
+
+  .result-table td:nth-child(2),
+  .result-table td:nth-child(4) {
+    border-right: none;
+  }
+
+  .result-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .result-table .label {
+    color: #606266;
+    width: 130px;
+    background-color: #f5f7fa;
+    font-weight: 500;
+    text-align: center;
+  }
+
+  .result-table .value {
+    color: #303133;
+    width: calc(50% - 65px);
+  }
+
+  /* ========== 变更记录表格 ========== */
+  .change-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .change-table th {
+    background-color: #f5f7fa;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #303133;
+    border-bottom: 2px solid #dcdfe6;
+    text-align: center;
+  }
+
+  .change-table td {
+    padding: 14px 20px;
+    font-size: 14px;
+    color: #303133;
+    border-bottom: 1px solid #ebeef5;
+    text-align: center;
+  }
+
+  .change-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  /* ========== 底部区域 ========== */
+  .footer {
+    background: repeating-linear-gradient(
+      45deg,
+      #3a3a3a 0px,
+      #3a3a3a 1px,
+      #4a4a4a 1px,
+      #4a4a4a 3px
+    );
+    padding: 32px 0 28px;
+    margin-top: 30px;
+  }
+
+  .footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .footer-badge {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 14px;
+  }
+
+  .footer-badge img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .footer-info {
+    text-align: center;
+    color: #c8c8c8;
+    font-size: 13px;
+    line-height: 1.9;
+  }
+
+  .footer-info a {
+    color: #c8c8c8;
+    text-decoration: none;
+  }
+
+  .footer-info a:hover {
+    color: #fff;
+  }
+
+
+</style>
+</head>
+<body>
+
+<!-- ========== 顶部标题 ========== -->
+<header class="header">
+  <div class="header-content">
+    <div class="logo">
+      <img src="8.jpg" alt="Logo">
+    </div>
+    <div class="header-text">
+      <div class="header-title-top">工业和信息化部政务服务平台</div>
+      <div class="header-title-main">通信行业规划建设管理信息系统</div>
+    </div>
+  </div>
+</header>
+
+<!-- ========== 主体内容 ========== -->
+<main class="main-container">
+
+  <!-- 查询结果 -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-title">查询结果</div>
+    </div>
+    <table class="result-table">
+      <tr>
+        <td class="label">姓名</td>
+        <td class="value">何*诚</td>
+        <td class="label">性别</td>
+        <td class="value">男</td>
+      </tr>
+      <tr>
+        <td class="label">身份证号</td>
+        <td class="value">4414**********3118</td>
+        <td class="label">企业名称</td>
+        <td class="value">浙江潇宇建设有限公司</td>
+      </tr>
+      <tr>
+        <td class="label">考核机关</td>
+        <td class="value">广东省通信管理局</td>
+        <td class="label">证书编号</td>
+        <td class="value">工信粤建安A(2025)00188</td>
+      </tr>
+      <tr>
+        <td class="label">职务</td>
+        <td class="value">专职安全员</td>
+        <td class="label">技术职称</td>
+        <td class="value">其他中级职称（或同等专业水平）</td>
+      </tr>
+      <tr>
+        <td class="label">初次发证日期</td>
+        <td class="value">2025-8-5</td>
+        <td class="label">证书到期日期</td>
+        <td class="value">2028-8-4</td>
+      </tr>
+    </table>
+  </section>
+
+  <!-- 变更记录 -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-title">变更记录</div>
+    </div>
+    <table class="change-table">
+      <thead>
+        <tr>
+          <th style="width: 20%;">变更时间</th>
+          <th style="width: 25%;">变更内容</th>
+          <th style="width: 27.5%;">变更前信息</th>
+          <th style="width: 27.5%;">变更后信息</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2025-11-23</td>
+          <td>安全员变更受聘企业</td>
+          <td>启航技术有限公司</td>
+          <td>深圳中恒建设科技服务有限公司</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+</main>
+
+<!-- ========== 底部 ========== -->
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-badge">
+      <img src="1.jpg?t=20260803" alt="党政机关">
+    </div>
+    <div class="footer-info">
+      <div>主办单位：中华人民共和国工业和信息化部　地址：中国北京长安街13号　邮编：100804</div>
+      <div style="margin-top: 4px;">工业和信息化部 版权所有 <a href="#">京ICP备 0400001号</a> 网站标识码 bm07000001</div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
